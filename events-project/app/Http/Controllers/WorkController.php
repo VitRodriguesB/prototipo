@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Work;
 use App\Models\WorkType;
+use App\Notifications\WorkSubmittedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage; // 👈 ADICIONADO (Necessário para o download)
+use Illuminate\Support\Facades\Storage;
 
 class WorkController extends Controller
 {
@@ -90,6 +91,9 @@ class WorkController extends Controller
             $inscription->save();
 
             DB::commit();
+
+            // RF_S6: Notificar participante sobre submissão do trabalho
+            Auth::user()->notify(new WorkSubmittedNotification($work));
 
         } catch (\Exception $e) {
             DB::rollBack();

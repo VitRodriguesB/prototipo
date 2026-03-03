@@ -15,6 +15,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\AttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,9 @@ Route::get('/', function () {
 });
 
 Route::get('/eventos/{event}', [PublicEventController::class, 'show'])->name('events.public.show');
+
+// RF_F10: Rota pública para validação de QR Code (não requer auth do participante)
+Route::get('/presenca/{inscription}/{token}', [AttendanceController::class, 'validate'])->name('attendance.validate');
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +99,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/organizacao/pagamentos', [PaymentController::class, 'index'])->name('organization.payments.index');
         Route::post('/organizacao/pagamentos/{inscription}/aprovar', [PaymentController::class, 'approve'])->name('organization.payments.approve');
         Route::post('/organizacao/pagamentos/{inscription}/recusar', [PaymentController::class, 'reject'])->name('organization.payments.reject');
+        Route::get('/organizacao/pagamentos/{payment}/download', [PaymentController::class, 'download'])->name('organization.payments.download');
 
         // ROTAS DE GERENCIAR TRABALHOS (RF-F6)
         Route::get('/organizacao/trabalhos', [SubmissionController::class, 'index'])->name('submissions.index');
@@ -117,6 +123,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ROTAS DE AVALIAÇÃO (RF-F12)
     Route::get('/avaliacoes/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
     Route::patch('/avaliacoes/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+
+    // RF_S7: Certificados em PDF
+    Route::get('/certificados/{inscription}/participacao', [CertificateController::class, 'participation'])->name('certificates.participation');
+    Route::get('/certificados/trabalho/{work}', [CertificateController::class, 'presentation'])->name('certificates.presentation');
+
+    // RF_F10: Controle de Presença via QR Code
+    Route::get('/presenca/scanner', [AttendanceController::class, 'scannerPage'])->name('attendance.scanner');
+    Route::get('/presenca/qrcode/{inscription}', [AttendanceController::class, 'showQrCode'])->name('attendance.qrcode');
 });
 
 require __DIR__.'/auth.php';

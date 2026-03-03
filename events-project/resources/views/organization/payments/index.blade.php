@@ -57,7 +57,12 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <!-- Link para visualizar o comprovante -->
                                             <a href="{{ Storage::url($payment->proof_path) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-100 underline">
-                                                Ver Comprovante
+                                                Ver
+                                            </a>
+                                            <span class="mx-1 text-gray-400">|</span>
+                                            <!-- RF_F2: Botão de Download -->
+                                            <a href="{{ route('organization.payments.download', $payment->id) }}" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-100 underline">
+                                                Baixar
                                             </a>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">

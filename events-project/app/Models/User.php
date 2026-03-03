@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany; // Importe o HasMany
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -42,6 +43,23 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Envia a notificação de verificação de e-mail customizada (RF_B1).
+     * Sobrescreve o método padrão do Laravel para usar nossa notificação em português.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CustomVerifyEmail());
+    }
+
+    /**
+     * Verifica se o usuário confirmou o e-mail.
+     */
+    public function isConfirmed(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+
+    /**
      * Um utilizador (participante) pode ter muitas inscrições.
      */
     public function inscriptions(): HasMany
@@ -58,12 +76,10 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * 👇👇 FUNÇÃO QUE FALTAVA 👇👇
      * Os eventos que este utilizador (Organizador) criou.
      */
     public function events(): HasMany
     {
-        // Um User (Organizador) tem muitos (hasMany) Events
         return $this->hasMany(Event::class);
     }
 }

@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Inscription;
-use App\Models\InscriptionType; // Importe este
+use App\Models\InscriptionType;
+use App\Notifications\InscriptionConfirmedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str; // Para gerar o código de registro
+use Illuminate\Support\Str;
 
 class InscriptionController extends Controller
 {
@@ -87,7 +88,10 @@ class InscriptionController extends Controller
             'registration_code' => strtoupper(Str::random(8)), // Ex: A8B2K9L0
         ]);
 
-        // 5. Redireciona para o próximo passo (CORREÇÃO 2)
+        // RF_S6: Notificar participante sobre a inscrição
+        $user->notify(new InscriptionConfirmedNotification($inscription));
+
+        // 5. Redireciona para o próximo passo
         
         // Se o preço for R$ 0,00, confirma automaticamente
         if ($inscriptionType->price <= 0) {

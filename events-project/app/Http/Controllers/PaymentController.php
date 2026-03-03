@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Inscription;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Notifications\NewPaymentProofNotification;
+use App\Notifications\PaymentApprovedNotification;
+use App\Notifications\PaymentRejectedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -92,6 +95,10 @@ class PaymentController extends Controller
         $payment->rejection_reason = null; // Limpa a razão de recusa se houver
         $payment->save();
 
+        // RF_S6: Notificar organizador sobre novo comprovante
+        $organizer = $inscription->event->user;
+        $organizer->notify(new NewPaymentProofNotification($inscription));
+
         // 5. Redirecionar
         return redirect()->route('dashboard')->with('success', 'Comprovante enviado com sucesso! Seu pagamento está agora EM ANÁLISE.');
     }
@@ -114,7 +121,8 @@ class PaymentController extends Controller
         $inscription->status = 1; // 1 = Confirmada (inscriptions.status)
         $inscription->save();
         
-        // RF-S6: Envio de E-mail de confirmação (a ser implementado depois)
+        // RF_S6: Notificar participante sobre aprovação
+        $inscription->user->notify(new PaymentApprovedNotification($inscription->payment));
         
         return redirect()->route('organization.payments.index')->with('success', 'Pagamento aprovado. Participante notificado.');
     }
@@ -151,8 +159,32 @@ class PaymentController extends Controller
         $inscription->status = 2; // 2 = Pagamento Recusado (inscriptions.status)
         $inscription->save();
 
-        // RF-S6: Envio de E-mail de recusa (a ser implementado depois)
+        // RF_S6: Notificar participante sobre recusa
+        $inscription->user->notify(new PaymentRejectedNotification($inscription->payment, $rejectionReason));
 
         return redirect()->route('organization.payments.index')->with('success', 'Pagamento recusado. Participante notificado com justificativa.');
+    }
+
+    /**
+     * RF_F2: Faz download do comprovante de pagamento.
+     */
+    public function download(Payment $payment)
+    {
+        // Segurança: Apenas o organizador do evento pode baixar
+        if (Auth::id() !== $payment->inscription->event->user_id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        // Verifica se o arquivo existe
+        if (!Storage::disk('public')->exists($payment->proof_path)) {
+            return back()->with('error', 'Arquivo não encontrado.');
+        }
+
+        // Gera um nome legível para o arquivo
+        $participantName = str_replace(' ', '_', $payment->inscription->user->name);
+        $extension = pathinfo($payment->proof_path, PATHINFO_EXTENSION);
+        $filename = "comprovante_{$participantName}.{$extension}";
+
+        return Storage::disk('public')->download($payment->proof_path, $filename);
     }
 }

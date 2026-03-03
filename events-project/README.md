@@ -1,59 +1,145 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Gestão de Eventos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Uma plataforma completa para gerenciamento de eventos acadêmicos e profissionais, desenvolvida em Laravel. O sistema gerencia todo o ciclo de vida de um evento, desde a inscrição e pagamento até a submissão e avaliação de trabalhos.
 
-## About Laravel
+## 🚀 Funcionalidades Principais
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O sistema possui controle de acesso baseado em papéis (ACL) para três perfis distintos:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 👤 Participante
+- Visualização de eventos disponíveis.
+- Inscrição em eventos e atividades.
+- Pagamento de inscrições.
+- Submissão de trabalhos acadêmicos.
+- Download de certificados (se disponível).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🛠️ Organizador
+- Criação e edição de eventos.
+- Gerenciamento de atividades e cronogramas.
+- Definição de tipos de inscrição e valores.
+- Validação manual de pagamentos (Aprovar/Recusar).
+- Distribuição de trabalhos para avaliadores.
 
-## Learning Laravel
+### 📋 Avaliador
+- Visualização de trabalhos atribuídos.
+- Realização de avaliações e emissão de pareceres.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚧 Status do Projeto
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+O projeto encontra-se em fase de desenvolvimento. Abaixo, o status detalhado das funcionalidades planejadas:
 
-## Laravel Sponsors
+### ✅ Funcionalidades Implementadas (MVP)
+- **Autenticação**: Cadastro e Login de usuários (Participante, Organizador, Avaliador).
+- **Gestão de Eventos**: CRUD completo para organizadores.
+- **Inscrições**: Fluxo de inscrição e escolha de tipo de ingresso.
+- **Atividades**: Cadastro de programação (palestras, minicursos).
+- **Submissões**: Envio de trabalhos acadêmicos pelos participantes.
+- **Avaliação**: Interface para avaliadores revisarem trabalhos.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ⏳ Funcionalidades Pendentes (Roadmap)
+As seguintes "Features de Saída" e "Automações" listadas no escopo ainda precisam ser desenvolvidas:
+- [ ] **Confirmação de E-mail**: Envio de link de ativação no cadastro (RF_B1).
+- [ ] **Notificações Automáticas**: E-mails de confirmação de inscrição, pagamento e prazos (RF_S6).
+- [ ] **Upload de Comprovante**: Melhoria no fluxo de envio e validação de arquivos de pagamento (RF_F2).
+- **Certificados**:
+    - [ ] Geração automática de PDF para Participação (RF_S7).
+    - [ ] Geração automática de PDF para Apresentação de Trabalho.
+- **Controle de Presença**:
+    - [ ] Geração de QR Code por inscrito.
+    - [ ] Leitura/Validação de QR Code no dia do evento (RF_F10).
 
-### Premium Partners
+## 💡 Melhorias Sugeridas (Code Quality & Security)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Para garantir escalabilidade, segurança e manutenibilidade, sugerimos as seguintes refatorações:
 
-## Contributing
+### Arquitetura e Código
+- **Service Pattern**: Extrair regras de negócio complexas dos Controllers (ex: `PaymentController`, `InscriptionController`) para Classes de Serviço (`PaymentService`).
+- **Form Requests**: Implementar validação dedicada para cada formulário, retirando-a dos Controllers.
+- **Testes**: Criar bateria de testes automatizados (Unitários e Feature) para garantir estabilidade.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Segurança
+- **Sanitização**: Reforçar proteção contra XSS e revisar uploads de arquivos.
+- **ACL**: Verificar middlewares de permissão em todas as rotas sensíveis.
 
-## Code of Conduct
+## 🛠️ Stack Tecnológico
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Backend:** Laravel 10+ (PHP 8.2+)
+- **Banco de Dados:** MySQL
+- **Frontend:** Blade Templates, Tailwind CSS, Alpine.js
+- **Build Tool:** Vite
 
-## Security Vulnerabilities
+## ⚙️ Instalação e Configuração
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Siga os passos abaixo para rodar o projeto em seu ambiente local:
 
-## License
+### Pré-requisitos
+- PHP 8.2 ou superior
+- Composer
+- Node.js & NPM
+- MySQL
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Passo a Passo
+
+1. **Clone o repositório**
+   ```bash
+   git clone <url-do-repositorio>
+   cd events-project
+   ```
+
+2. **Instale as dependências**
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Configure o ambiente**
+   Copie o arquivo de exemplo e configure o banco de dados:
+   ```bash
+   cp .env.example .env
+   ```
+   Edite o arquivo `.env` e ajuste as credenciais do banco:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=events_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+4. **Gere a chave da aplicação**
+   ```bash
+   php artisan key:generate
+   ```
+
+5. **Execute as migrações**
+   Crie as tabelas no banco de dados (certifique-se que o banco `events_db` existe):
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Inicie o servidor**
+   Você precisará de dois terminais:
+
+   *Terminal 1 (Backend):*
+   ```bash
+   php artisan serve
+   ```
+
+   *Terminal 2 (Frontend/Assets):*
+   ```bash
+   npm run dev
+   ```
+
+O projeto estará acessível em `http://localhost:8000`.
+
+## 📂 Estrutura do Projeto
+
+- **Models:** `app/Models` - Definição das entidades (Event, Inscription, Work, etc).
+- **Controllers:** `app/Http/Controllers` - Lógica de negócios.
+- **Views:** `resources/views` - Templates Blade.
+- **Routes:** `routes/web.php` - Definição de rotas e middleware.
+
+## 📝 Licença
+
+Este projeto é open-source.

@@ -82,4 +82,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Event::class);
     }
+
+    /**
+     * Atividades em que o utilizador está inscrito (RF_F9).
+     */
+    public function activities(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Activity::class, 'activity_user');
+    }
 }

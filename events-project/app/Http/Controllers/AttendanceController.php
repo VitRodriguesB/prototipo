@@ -108,6 +108,9 @@ class AttendanceController extends Controller
         $inscription->attended = true;
         $inscription->save();
 
+        // Notifica o participante que o certificado está liberado
+        $inscription->user->notify(new \App\Notifications\AttendanceConfirmedNotification($inscription));
+
         $participantName = $inscription->user->name;
         $eventTitle = $event->title;
 

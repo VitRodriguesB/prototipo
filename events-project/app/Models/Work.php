@@ -20,6 +20,9 @@ class Work extends Model
         'advisor',
         'co_authors_text',
         'file_path',
+        'presentation_date',
+        'presentation_room',
+        'presentation_order',
     ];
 
     // ... (as suas funções user(), workType(), e inscription() existentes ficam aqui) ...

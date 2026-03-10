@@ -12,11 +12,9 @@ class PublicEventController extends Controller
      */
     public function show(Event $event)
     {
-        // O Laravel automaticamente encontra o evento pelo ID na URL
-        // Agora, carregamos os 'tipos de inscrição' que pertencem a este evento
-        $event->load('inscriptionTypes');
+        // Carregamos os tipos de inscrição e as atividades vinculadas a este evento
+        $event->load(['inscriptionTypes', 'activities']);
 
-        // Retorna a view e passa o evento (com os tipos) para ela
         return view('events.public.show', [
             'event' => $event
         ]);

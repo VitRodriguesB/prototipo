@@ -43,6 +43,14 @@ class Event extends Model
     }
     
     /**
+     * Um evento tem muitas atividades (palestras, oficinas, etc).
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    /**
      * Um evento pertence a um Organizador (User).
      */
     public function user()

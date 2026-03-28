@@ -25,6 +25,15 @@ class Work extends Model
         'presentation_order',
     ];
 
+    /**
+     * Os atributos que devem ser convertidos.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'presentation_date' => 'datetime',
+    ];
+
     // ... (as suas funções user(), workType(), e inscription() existentes ficam aqui) ...
     
     /**

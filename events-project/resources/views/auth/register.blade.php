@@ -21,18 +21,6 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs font-bold text-red-500" />
         </div>
 
-        <!-- Perfil -->
-        <div>
-            <x-input-label for="user_type_id" :value="__('Tipo de Perfil')" class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-4" />
-            <select id="user_type_id" name="user_type_id" class="block w-full bg-[#1a1a1d] border-white/10 focus:border-[#4f46e5] focus:ring-[#4f46e5] rounded-full text-[#f0eee9] py-4 px-8 appearance-none cursor-pointer font-bold text-sm transition-all" required>
-                <option value="" disabled selected>O que você será?</option>
-                <option value="1" {{ old('user_type_id') == 1 ? 'selected' : '' }}>Participante</option>
-                <option value="2" {{ old('user_type_id') == 2 ? 'selected' : '' }}>Organizador</option>
-                <option value="3" {{ old('user_type_id') == 3 ? 'selected' : '' }}>Avaliador</option>
-            </select>
-            <x-input-error :messages="$errors->get('user_type_id')" class="mt-2 text-xs font-bold text-red-500" />
-        </div>
-
         <!-- Senha -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

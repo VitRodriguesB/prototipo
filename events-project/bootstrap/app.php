@@ -11,10 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
 
         // 👇 ADICIONE ESTA LINHA AQUI DENTRO 👇
         $middleware->alias([
             'organizer' => \App\Http\Middleware\CheckIsOrganizer::class,
+            'admin' => \App\Http\Middleware\CheckIsAdmin::class,
         ]);
 
     })

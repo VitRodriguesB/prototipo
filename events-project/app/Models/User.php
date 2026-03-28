@@ -90,4 +90,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Activity::class, 'activity_user');
     }
+
+    /**
+     * Relacionamento com o tipo de usuário (RF_S1).
+     */
+    public function userType()
+    {
+        return $this->belongsTo(UserType::class, 'user_type_id');
+    }
 }

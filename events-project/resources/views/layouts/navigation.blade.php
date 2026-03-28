@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-[100]">
+<nav x-data="{ mobileMenu: false }" class="bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-[100]">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
@@ -12,9 +12,11 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-[10px] font-black uppercase tracking-widest">
-                        {{ __('Painel Central') }}
-                    </x-nav-link>
+                    @if(Auth::check() && Auth::user()->user_type_id == 4)
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-[10px] font-black uppercase tracking-widest text-amber-400 border-amber-500/50">
+                            {{ __('Gestão de Usuários') }}
+                        </x-nav-link>
+                    @endif
 
                     @if(Auth::check() && Auth::user()->user_type_id == 2)
                         <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')" class="text-[10px] font-black uppercase tracking-widest">
@@ -37,7 +39,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-4 py-2 border border-white/10 text-xs font-black uppercase tracking-widest rounded-xl text-slate-400 bg-white/5 hover:text-white hover:bg-white/10 transition-all focus:outline-none shadow-lg">
+                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent focus:border-transparent text-xs font-black uppercase tracking-widest rounded-xl text-slate-400 bg-white/5 hover:text-white hover:bg-white/10 transition-all focus:outline-none focus:ring-0 ring-0 shadow-lg">
                             <div>{{ Auth::user()->name }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -70,10 +72,10 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <button @click="mobileMenu = ! mobileMenu" class="inline-flex items-center justify-center p-3 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path :class="{'hidden': mobileMenu, 'inline-flex': ! mobileMenu }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{'hidden': ! mobileMenu, 'inline-flex': mobileMenu }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -81,11 +83,13 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-[#050505] border-t border-white/5 shadow-2xl">
+    <div :class="{'block': mobileMenu, 'hidden': ! mobileMenu}" class="hidden sm:hidden bg-[#050505] border-t border-white/5 shadow-2xl">
         <div class="pt-2 pb-3 space-y-1 px-4">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl font-black uppercase text-[10px] tracking-widest py-4">
-                {{ __('Painel Central') }}
-            </x-responsive-nav-link>
+            @if(Auth::check() && Auth::user()->user_type_id == 4)
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="rounded-2xl font-black uppercase text-[10px] tracking-widest py-4 text-amber-400 bg-amber-500/5 border border-amber-500/20">
+                    {{ __('Gestão de Usuários') }}
+                </x-responsive-nav-link>
+            @endif
             
             @if(Auth::check() && Auth::user()->user_type_id == 2)
                 <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')" class="rounded-2xl font-black uppercase text-[10px] tracking-widest py-4">

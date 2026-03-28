@@ -9,7 +9,6 @@ use App\Notifications\WorkSubmittedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class WorkController extends Controller
 {
@@ -18,8 +17,11 @@ class WorkController extends Controller
      */
     public function create(Event $event)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // 1. Encontrar a inscrição do utilizador logado para este evento
-        $inscription = Auth::user()->inscriptions()
+        $inscription = $user->inscriptions()
             ->where('event_id', $event->id)
             ->first();
 
@@ -49,6 +51,9 @@ class WorkController extends Controller
      */
     public function store(Request $request, Event $event)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // 1. Validar os dados do formulário
         $request->validate([
             'title' => 'required|string|max:255',
@@ -60,7 +65,7 @@ class WorkController extends Controller
         ]);
 
         // 2. Encontrar a inscrição (verificação de segurança)
-        $inscription = Auth::user()->inscriptions()
+        $inscription = $user->inscriptions()
             ->where('event_id', $event->id)
             ->firstOrFail();
         
@@ -68,16 +73,29 @@ class WorkController extends Controller
             return redirect()->route('dashboard')->with('error', 'Trabalho já submetido.');
         }
 
-        // 3. Armazenar o ficheiro
-        $filePath = $request->file('file')->store('works/' . $event->id, 'public');
+        // 3. Upload Absoluto (Move fisicamente o arquivo para a pasta public)
+        if (!$request->hasFile('file')) {
+            return back()->with('error', 'O arquivo do trabalho não foi recebido pelo servidor.');
+        }
 
-        // 4. Usar uma Transação para garantir que tudo é salvo
+        $file = $request->file('file');
+        
+        // Cria um nome único com a extensão original
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        
+        // Move o arquivo FISICAMENTE para a pasta public/uploads/works
+        $file->move(public_path('uploads/works'), $fileName);
+        
+        // Salva o caminho exato no banco de dados
+        $filePath = 'uploads/works/' . $fileName;
+
+        // 4. Usar uma Transação para garantir que o banco de dados é salvo
         try {
             DB::beginTransaction();
 
             // 4a. Criar o registo do Trabalho
             $work = Work::create([
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'work_type_id' => $request->work_type_id,
                 'title' => $request->title,
                 'abstract' => $request->abstract,
@@ -92,41 +110,39 @@ class WorkController extends Controller
 
             DB::commit();
 
-            // RF_S6: Notificar participante sobre submissão do trabalho
-            Auth::user()->notify(new WorkSubmittedNotification($work));
-
         } catch (\Exception $e) {
             DB::rollBack();
-            // Apagar o ficheiro que foi salvo, já que a BD falhou
-            Storage::disk('public')->delete($filePath);
-            return back()->with('error', 'Erro ao submeter o trabalho. Tente novamente.');
+            // Só apaga o arquivo físico se der erro crítico no BANCO DE DADOS
+            $fullPath = public_path($filePath);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+            return back()->with('error', 'Erro ao salvar os dados no banco. Tente novamente.');
         }
 
-        // 5. Redirecionar
+        // 5. Notificação ISOLADA (Se o Mailtrap der erro 550, o arquivo NÃO será mais apagado)
+        try {
+            $user->notify(new WorkSubmittedNotification($work));
+        } catch (\Exception $e) {
+            // Ignora o erro de limite de e-mail silenciosamente e segue a vida
+        }
+
+        // 6. Redirecionar
         return redirect()->route('dashboard')->with('success', 'Trabalho submetido com sucesso!');
     }
 
-
-     
-    public function download(Work $work)
+    /**
+     * Download do trabalho (RF_A6, RF_S3)
+     */
+    public function download(\App\Models\Work $work)
     {
-        $user = Auth::user();
-
-        // Lógica de Segurança
-        $isAuthor = $user->id === $work->user_id;
-        $isOrganizer = $user->id === $work->inscription->event->user_id;
-        $isReviewer = $work->reviews()->where('user_id', $user->id)->exists();
-
-        if (!$isAuthor && !$isOrganizer && !$isReviewer) {
-            abort(403, 'Acesso não autorizado para baixar este ficheiro.');
-        }
-
-        // Verifica se o ficheiro existe no disco
-        if (!Storage::disk('public')->exists($work->file_path)) {
-            return back()->with('error', 'Ficheiro não encontrado. Pode ter sido removido.');
+        // Conserta o bug das barras invertidas do Windows para o PHP achar o arquivo fisicamente
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, public_path($work->file_path));
+        
+        if (file_exists($path)) {
+            return response()->download($path);
         }
         
-        // Força o download no navegador
-        return Storage::disk('public')->download($work->file_path, $work->title . '.pdf'); // (Podemos melhorar o nome do ficheiro)
+        abort(404, 'Erro crítico: O arquivo não foi encontrado no caminho físico: ' . $path);
     }
 }

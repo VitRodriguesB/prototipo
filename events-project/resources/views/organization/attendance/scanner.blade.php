@@ -1,59 +1,47 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Controle de Presença - QR Code') }}
-        </h2>
-    </x-slot>
+    <div class="bg-[#121214] min-h-screen flex flex-col items-center py-10 px-4 overflow-x-hidden w-full relative">
+        
+        {{-- Container de Toasts (Fixo no Topo) --}}
+        <div id="toast-container" class="fixed top-4 left-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <!-- Cabeçalho de Identidade -->
+        <div class="mb-10 text-center select-none">
+            <h2 class="text-3xl font-black text-white uppercase italic text-center mb-2">
+                SCANNER <span class="text-indigo-500">QR CODE</span>
+            </h2>
+            <p class="text-[10px] text-slate-500 uppercase tracking-[0.3em] font-black text-center">
+                Controle de Presença Profissional
+            </p>
+        </div>
+
+        <!-- Container Majestoso da Câmera -->
+        <div class="w-full max-w-md bg-[#0a0a0a] border-2 border-indigo-500/30 rounded-[2.5rem] shadow-2xl shadow-indigo-500/20 overflow-hidden mb-8 relative">
+            {{-- Linha de Escaneamento Animada --}}
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent blur-sm animate-scan z-20"></div>
             
-            {{-- Mensagens de Feedback --}}
-            @if (session('success'))
-                <div id="successAlert" class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div id="errorAlert" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                        Escanear QR Code do Participante
-                    </h3>
-                    
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Aponte a câmera para o QR Code do participante. A presença será confirmada automaticamente.
-                    </p>
-
-                    {{-- Área do Scanner --}}
-                    <div id="reader" class="mx-auto" style="max-width: 500px; border-radius: 12px; overflow: hidden;"></div>
-
-                    {{-- Resultado --}}
-                    <div id="scanResult" class="hidden mt-6 p-4 rounded-lg text-center">
-                        <div id="resultIcon" class="mx-auto mb-3"></div>
-                        <p id="resultMessage" class="text-lg font-semibold"></p>
-                        <p id="resultDetails" class="text-sm mt-1"></p>
-                    </div>
-
-                    {{-- Contador de Presenças --}}
-                    <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-center">
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Presenças Confirmadas Nesta Sessão</p>
-                        <p id="attendanceCount" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">0</p>
-                    </div>
-                </div>
+            {{-- Div alvo da biblioteca de Scanner --}}
+            <div id="reader" class="w-full h-auto aspect-square overflow-hidden"></div>
+            
+            {{-- Overlay de Foco --}}
+            <div class="absolute inset-0 pointer-events-none border-[40px] border-black/40 z-10">
+                <div class="w-full h-full border-2 border-white/10 rounded-3xl"></div>
             </div>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="w-full max-w-md grid grid-cols-1 gap-4 mb-8">
+            <div class="p-6 bg-[#0a0a0a] border border-white/5 rounded-2xl text-center shadow-xl">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Presenças Confirmadas</p>
+                <p id="attendanceCount" class="text-4xl font-black text-indigo-500 italic">0</p>
+            </div>
+        </div>
+
+        <!-- Rodapé de Ações -->
+        <div class="mt-auto">
+            <a href="{{ route('dashboard') }}" class="px-8 py-4 bg-white/5 text-slate-400 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Voltar ao Painel
+            </a>
         </div>
     </div>
 
@@ -64,45 +52,46 @@
         let attendanceCount = 0;
         let isProcessing = false;
 
-        function showResult(success, message, details = '') {
-            const scanResult = document.getElementById('scanResult');
-            const resultIcon = document.getElementById('resultIcon');
-            const resultMessage = document.getElementById('resultMessage');
-            const resultDetails = document.getElementById('resultDetails');
-
-            scanResult.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-yellow-100');
+        function showToast(success, message, details = '') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
             
+            const bgColor = success ? 'bg-emerald-500' : 'bg-red-600';
+            const animation = success ? 'animate-bounce' : 'animate-shake';
+            
+            toast.className = `pointer-events-auto flex items-center p-5 mb-4 text-white rounded-2xl shadow-2xl border-2 border-white/20 transition-all duration-500 ${bgColor} ${animation}`;
+            
+            const icon = success 
+                ? '<svg class="w-8 h-8 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>'
+                : '<svg class="w-8 h-8 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M6 18L18 6M6 6l12 12"></path></svg>';
+
+            toast.innerHTML = `
+                ${icon}
+                <div>
+                    <p class="text-sm font-black uppercase tracking-tight">${message}</p>
+                    ${details ? `<p class="text-[10px] font-bold opacity-80 uppercase mt-0.5">${details}</p>` : ''}
+                </div>
+            `;
+
+            container.appendChild(toast);
+
             if (success) {
-                scanResult.classList.add('bg-green-100');
-                resultIcon.innerHTML = '<svg class="w-16 h-16 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>';
                 attendanceCount++;
                 document.getElementById('attendanceCount').textContent = attendanceCount;
-            } else {
-                scanResult.classList.add('bg-red-100');
-                resultIcon.innerHTML = '<svg class="w-16 h-16 text-red-500 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>';
             }
 
-            resultMessage.textContent = message;
-            resultDetails.textContent = details;
-
-            // Esconde após 5 segundos
+            // Remove o toast após 4 segundos
             setTimeout(() => {
-                scanResult.classList.add('hidden');
-            }, 5000);
+                toast.classList.add('opacity-0', '-translate-y-4');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
         }
 
         function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return;
             isProcessing = true;
 
-            // Verifica se é uma URL do nosso sistema
-            if (!decodedText.includes('/presenca/')) {
-                showResult(false, 'QR Code inválido', 'Este QR Code não é do sistema de eventos.');
-                setTimeout(() => { isProcessing = false; }, 2000);
-                return;
-            }
-
-            // Faz a requisição AJAX
+            // Faz a requisição AJAX (FETCH) para a rota de validação
             fetch(decodedText, {
                 method: 'GET',
                 headers: {
@@ -113,41 +102,70 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showResult(true, data.message, `Participante: ${data.participant}`);
+                    showToast(true, data.message, `Participante: ${data.participant}`);
                 } else {
-                    showResult(false, data.message, data.participant ? `Participante: ${data.participant}` : '');
+                    showToast(false, data.message, data.participant ? `Participante: ${data.participant}` : '');
                 }
             })
             .catch(error => {
-                showResult(false, 'Erro ao validar QR Code', 'Verifique sua conexão.');
+                showToast(false, 'Erro Crítico', 'Falha na comunicação com o servidor.');
             })
             .finally(() => {
-                setTimeout(() => { isProcessing = false; }, 2000);
+                // Pequeno delay para evitar scans múltiplos do mesmo código instantaneamente
+                setTimeout(() => { isProcessing = false; }, 2500);
             });
         }
 
         function onScanFailure(error) {
-            // Silenciosamente ignora erros de scan (frames sem QR)
+            //frames sem QR ignorados
         }
 
-        // Inicializa o scanner
         const html5QrcodeScanner = new Html5Qrcode("reader");
-        
         html5QrcodeScanner.start(
-            { facingMode: "environment" }, // Câmera traseira
+            { facingMode: "environment" }, 
             {
-                fps: 10,
+                fps: 15,
                 qrbox: { width: 250, height: 250 }
             },
             onScanSuccess,
             onScanFailure
         ).catch(err => {
             document.getElementById('reader').innerHTML = `
-                <div class="p-6 text-center bg-yellow-100 rounded-lg">
-                    <p class="text-yellow-800 font-medium">Não foi possível acessar a câmera.</p>
-                    <p class="text-sm text-yellow-700 mt-2">Verifique se você concedeu permissão para usar a câmera.</p>
+                <div class="p-10 text-center bg-red-500/10 rounded-3xl border border-red-500/20">
+                    <p class="text-red-500 font-black uppercase tracking-widest text-xs">Câmera Bloqueada</p>
+                    <p class="text-[10px] text-slate-500 mt-2 font-bold uppercase">Verifique as permissões do navegador.</p>
                 </div>
             `;
         });
     </script>
+
+    <style>
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-scan { animation: scan 3s linear infinite; }
+        .animate-shake { animation: shake 0.2s ease-in-out infinite; animation-iteration-count: 2; }
+        
+        /* Estilo do botão de câmera do html5-qrcode */
+        #reader button {
+            background-color: #4f46e5 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 1rem !important;
+            padding: 1rem 2rem !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            font-size: 10px !important;
+            letter-spacing: 0.1em !important;
+            cursor: pointer !important;
+            margin-top: 2rem !important;
+        }
+    </style>
 </x-app-layout>

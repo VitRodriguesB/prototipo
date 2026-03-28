@@ -8,7 +8,8 @@ use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,39 +25,54 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Retorna a imagem do QR Code para o participante.
+     * Retorna a TELA do Ingresso Digital (HTML Premium Dark)
      */
-    public function showQrCode(Inscription $inscription)
+    public function showTicket(Inscription $inscription)
     {
-        // Segurança: Apenas o dono pode ver
-        if (Auth::id() !== $inscription->user_id) {
-            abort(403, 'Acesso não autorizado.');
-        }
+        // Segurança: Apenas o dono pode ver seu próprio ingresso
+        abort_unless($inscription->user_id == auth()->id(), 403);
 
         // Apenas inscrições confirmadas
         if ($inscription->status !== 1) {
-            abort(403, 'QR Code disponível apenas para inscrições confirmadas.');
+            abort(403, 'Ingresso disponível apenas para inscrições confirmadas.');
         }
 
+        // Geração do QR Code em Base64 para seguir a Regra de Ouro (sem GD)
         $token = $this->generateToken($inscription);
         $url = route('attendance.validate', [
             'inscription' => $inscription->id,
             'token' => $token
         ]);
+        
+        $qrCode = new QrCode($url);
+        $writer = new SvgWriter();
+        $result = $writer->write($qrCode);
+        $qrCodeUri = $result->getDataUri();
 
-        // Gera o QR Code
-        $result = Builder::create()
-            ->writer(new PngWriter())
-            ->data($url)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(ErrorCorrectionLevel::High)
-            ->size(300)
-            ->margin(10)
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build();
+        return view('attendance.qrcode', compact('inscription', 'qrCodeUri'));
+    }
 
+    /**
+     * Retorna apenas a IMAGEM PNG do QR Code (chamada pela tag <img> na view)
+     */
+    public function showQrCodeImage(Inscription $inscription)
+    {
+        if (Auth::id() !== $inscription->user_id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+        $token = $this->generateToken($inscription);
+        
+        $url = route('attendance.validate', [
+            'inscription' => $inscription->id,
+            'token' => $token
+        ]);
+        
+        $qrCode = new QrCode($url);
+        $writer = new SvgWriter();
+        $result = $writer->write($qrCode);
+        
         return response($result->getString(), 200, [
-            'Content-Type' => 'image/png',
+            'Content-Type' => $result->getMimeType(),
             'Cache-Control' => 'no-store, no-cache, must-revalidate',
         ]);
     }
@@ -74,6 +90,9 @@ class AttendanceController extends Controller
      */
     public function validate(Request $request, Inscription $inscription, string $token)
     {
+        // Segurança: Apenas o organizador do evento (ou admin) pode validar a presença
+        abort_unless($inscription->event->user_id == auth()->id() || auth()->user()->user_type_id == 4, 403);
+
         // Verifica o token
         $expectedToken = $this->generateToken($inscription);
         if (!hash_equals($expectedToken, $token)) {
@@ -124,5 +143,21 @@ class AttendanceController extends Controller
         }
 
         return redirect()->route('attendance.scanner')->with('success', "Presença confirmada para: {$participantName}");
+    }
+
+    /**
+     * RF_F10: Reseta a presença de um participante.
+     */
+    public function resetAttendance(Inscription $inscription)
+    {
+        // Segurança: Apenas o organizador do evento pode resetar
+        if ($inscription->event->user_id !== Auth::id()) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $inscription->attended = false;
+        $inscription->save();
+
+        return back()->with('success', 'Presença resetada com sucesso. O QR Code pode ser usado novamente.');
     }
 }

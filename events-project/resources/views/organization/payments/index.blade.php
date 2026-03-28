@@ -47,6 +47,17 @@
                                                     </button>
                                                 </form>
 
+                                                @if($payment->inscription->attended)
+                                                    <div class="mt-2">
+                                                        <form action="{{ route('admin.inscriptions.reset', $payment->inscription) }}" method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="w-full py-2 bg-amber-500/20 border border-amber-500/50 text-amber-500 rounded-xl text-[9px] font-black uppercase tracking-tighter hover:bg-amber-500 hover:text-white transition-all">
+                                                                ⚡ Resetar Check-in
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @endif
+
                                                 <button onclick="document.getElementById('reject-form-{{ $payment->id }}').classList.toggle('hidden')" class="px-6 py-2 bg-white/5 text-red-500 border border-red-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all">
                                                     Recusar
                                                 </button>

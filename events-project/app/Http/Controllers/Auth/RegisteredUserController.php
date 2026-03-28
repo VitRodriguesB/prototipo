@@ -36,20 +36,17 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // 👇 4. ADICIONE A VALIDAÇÃO DO user_type_id
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'user_type_id' => ['required', 'integer', 'exists:user_types,id'], // Garante que o ID enviado existe
         ]);
 
-        // 👇 5. ADICIONE O user_type_id NO CREATE
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_type_id' => $request->user_type_id, // Salva o tipo
+            'user_type_id' => 1, // 👈 FIX: Todo novo cadastro é Participante
         ]);
 
         event(new Registered($user));

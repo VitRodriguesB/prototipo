@@ -7,16 +7,22 @@ use Illuminate\Http\Request;
 
 class PublicEventController extends Controller
 {
-    /**
-     * Exibe a página de detalhes pública de um evento. (RF-S2)
-     */
+    public function index()
+    {
+        $events = Event::where('registration_deadline', '>=', now())
+                        ->orderBy('event_date', 'asc')
+                        ->get();
+        return view('welcome', compact('events'));
+    }
+
     public function show(Event $event)
     {
-        // Carregamos os tipos de inscrição e as atividades vinculadas a este evento
-        $event->load(['inscriptionTypes', 'activities']);
+        // Carrega os tipos de inscrição e atividades relacionadas para exibir na página do evento
+        $event->load(['inscriptionTypes', 'activities' => function($query) {
+            $query->orderBy('start_time', 'asc');
+        }]);
 
-        return view('events.public.show', [
-            'event' => $event
-        ]);
+        // A view correta está no subdiretório public conforme refatoração anterior
+        return view('events.public.show', compact('event'));
     }
 }

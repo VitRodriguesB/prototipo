@@ -50,7 +50,11 @@ class ReviewController extends Controller
         // 3. Atualiza a avaliação
         $review->update($validatedData);
 
-        // 4. Redireciona de volta ao dashboard
+        // 4. Notificar o autor do trabalho (RF_S6)
+        $author = $review->work->user;
+        $author->notify(new \App\Notifications\WorkReviewedNotification($review));
+
+        // 5. Redireciona de volta ao dashboard
         return redirect()->route('dashboard')->with('success', 'Avaliação enviada com sucesso!');
     }
 }

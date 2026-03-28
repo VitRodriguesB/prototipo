@@ -35,6 +35,14 @@ class Event extends Model
     ];
 
     /**
+     * Um evento tem muitas inscrições.
+     */
+    public function inscriptions(): HasMany
+    {
+        return $this->hasMany(Inscription::class);
+    }
+    
+    /**
      * Um evento tem muitos tipos de inscrição.
      */
     public function inscriptionTypes(): HasMany

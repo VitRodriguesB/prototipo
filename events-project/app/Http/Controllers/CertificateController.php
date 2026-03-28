@@ -36,7 +36,7 @@ class CertificateController extends Controller
     }
 
     /**
-     * RF_S7: Gera certificado de participação em PDF.
+     * RF_S7: Exibe o certificado de participação para impressão no navegador.
      */
     public function participation(Inscription $inscription)
     {
@@ -50,24 +50,17 @@ class CertificateController extends Controller
 
         $authCode = $this->generateAuthCode($inscription, 'participation');
 
-        $data = [
+        return view('certificates.participation', [
             'type' => 'participation',
             'user' => $inscription->user,
             'event' => $inscription->event,
-            'work' => null,
+            'inscription' => $inscription,
             'authCode' => $authCode,
-        ];
-
-        $pdf = Pdf::loadView('certificates.template', $data)
-            ->setPaper('a4', 'landscape');
-
-        $filename = 'certificado_participacao_' . Str::slug($inscription->event->title) . '.pdf';
-
-        return $pdf->download($filename);
+        ]);
     }
 
     /**
-     * RF_S7: Gera certificado de apresentação de trabalho em PDF.
+     * RF_S7: Exibe o certificado de apresentação de trabalho para impressão no navegador.
      */
     public function presentation(Work $work)
     {
@@ -87,20 +80,14 @@ class CertificateController extends Controller
 
         $authCode = $this->generateAuthCode($inscription, 'presentation', $work->id);
 
-        $data = [
+        return view('certificates.participation', [
             'type' => 'presentation',
             'user' => $work->user,
             'event' => $inscription->event,
+            'inscription' => $inscription,
             'work' => $work,
             'authCode' => $authCode,
-        ];
-
-        $pdf = Pdf::loadView('certificates.template', $data)
-            ->setPaper('a4', 'landscape');
-
-        $filename = 'certificado_apresentacao_' . Str::slug($work->title) . '.pdf';
-
-        return $pdf->download($filename);
+        ]);
     }
 
     /**

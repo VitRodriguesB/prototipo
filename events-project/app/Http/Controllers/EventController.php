@@ -32,6 +32,23 @@ class EventController extends Controller
     }
 
     /**
+     * Mostra a lista de inscritos do evento (RF_S4 / RF_S1).
+     */
+    public function show(Event $event)
+    {
+        if ($event->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $inscriptions = $event->inscriptions()
+            ->with(['user', 'inscriptionType', 'payment'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('organization.inscriptions.index', compact('event', 'inscriptions'));
+    }
+
+    /**
      * Armazena um novo evento. (MÉTODO ATUALIZADO)
      */
     public function store(Request $request)

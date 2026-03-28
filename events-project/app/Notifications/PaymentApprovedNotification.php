@@ -3,9 +3,9 @@
 namespace App\Notifications;
 
 use App\Models\Payment;
+use App\Mail\PaymentApproved as PaymentApprovedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class PaymentApprovedNotification extends Notification implements ShouldQueue
@@ -33,23 +33,10 @@ class PaymentApprovedNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable)
     {
-        $inscription = $this->payment->inscription;
-        $event = $inscription->event;
-
-        return (new MailMessage)
-            ->subject('Pagamento Aprovado - ' . $event->title)
-            ->greeting('Ótimas notícias, ' . $notifiable->name . '!')
-            ->line('Seu pagamento foi **aprovado** e sua inscrição está confirmada.')
-            ->line('**Evento:** ' . $event->title)
-            ->line('**Data:** ' . $event->event_date->format('d/m/Y'))
-            ->line('**Local:** ' . ($event->location ?? 'A definir'))
-            ->line('---')
-            ->line('Sua participação está garantida! Fique atento aos próximos comunicados.')
-            ->action('Ver Detalhes', url('/dashboard'))
-            ->line('Nos vemos em breve!')
-            ->salutation('Atenciosamente, Equipe ' . config('app.name'));
+        return (new PaymentApprovedMail($this->payment))
+            ->to($notifiable->email);
     }
 
     /**

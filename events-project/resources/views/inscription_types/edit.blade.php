@@ -1,57 +1,59 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 classclass="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Editar Tipo de Inscrição: <span class="text-indigo-600 dark:text-indigo-400">{{ $inscriptionType->type }}</span>
-        </h2>
-    </x-slot>
+    <div class="py-6 sm:py-12 bg-[#121214]">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-white uppercase tracking-tight italic pr-3">
+                    EDITAR <span class="inline-block pr-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">TIPO DE INSCRIÇÃO</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-widest italic">Tipo: {{ $inscriptionType->type }}</p>
+            </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8 sm:p-10 shadow-2xl">
+                <form method="POST" action="{{ route('inscription_types.update', $inscriptionType->id) }}" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
-                    <form method="POST" action="{{ route('inscription_types.update', $inscriptionType->id) }}">
-                        @csrf
-                        @method('PUT')
+                    <!-- Tipo (Nome) -->
+                    <div>
+                        <label for="type" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Nome do Tipo (ex: Ouvinte, Autor, Palestrante)</label>
+                        <input id="type" type="text" name="type" value="{{ old('type', $inscriptionType->type) }}" required autofocus
+                            class="w-full bg-[#121214] border border-white/10 rounded-xl text-white px-4 py-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-600 shadow-inner"
+                            placeholder="Ex: Autor de Trabalho">
+                        <x-input-error :messages="$errors->get('type')" class="mt-2 text-[10px] font-bold text-red-500 uppercase" />
+                    </div>
 
-                        <div>
-                            <x-input-label for="type" :value="__('Nome do Tipo (ex: Ouvinte, Autor, Palestrante)')" />
-                            <x-text-input id="type" class="block mt-1 w-full" type="text" name="type" :value="old('type', $inscriptionType->type)" required autofocus />
-                            <x-input-error :messages="$errors->get('type')" class="mt-2" />
-                        </div>
+                    <!-- Preço (R$) -->
+                    <div>
+                        <label for="price" class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Preço da Inscrição (R$)</label>
+                        <input id="price" type="number" name="price" value="{{ old('price', $inscriptionType->price) }}" required step="0.01" min="0"
+                            class="w-full bg-[#121214] border border-white/10 rounded-xl text-white px-4 py-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                            placeholder="0,00">
+                        <x-input-error :messages="$errors->get('price')" class="mt-2 text-[10px] font-bold text-red-500 uppercase" />
+                    </div>
 
-                        <div class="mt-4">
-                            <x-input-label for="price" :value="__('Preço (R$)')" />
-                            <x-text-input id="price" 
-                                          class="block mt-1 w-full" 
-                                          type="number" 
-                                          name="price" 
-                                          :value="old('price', $inscriptionType->price)" 
-                                          required 
-                                          step="0.01" 
-                                          min="0" />
-                            <x-input-error :messages="$errors->get('price')" class="mt-2" />
-                        </div>
-                        <div class="block mt-4">
-                            <label for="allow_work_submission" class="inline-flex items-center">
-                                <input id="allow_work_submission" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="allow_work_submission" value="1" {{ old('allow_work_submission', $inscriptionType->allow_work_submission) ? 'checked' : '' }}>
-                                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Permite submissão de trabalho?') }}</span>
-                            </label>
-                            <x-input-error :messages="$errors->get('allow_work_submission')" class="mt-2" />
-                        </div>
+                    <!-- Checkbox para Submissão de Trabalho -->
+                    <div class="p-6 bg-[#121214] border border-white/5 rounded-xl">
+                        <label for="allow_work_submission" class="inline-flex items-center cursor-pointer group">
+                            <div class="relative">
+                                <input id="allow_work_submission" type="checkbox" class="sr-only peer" name="allow_work_submission" value="1" {{ old('allow_work_submission', $inscriptionType->allow_work_submission) ? 'checked' : '' }}>
+                                <div class="w-10 h-5 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                            </div>
+                            <span class="ms-4 text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-white transition-colors">{{ __('Permitir submissão de trabalho acadêmico?') }}</span>
+                        </label>
+                        <p class="mt-2 text-[9px] text-slate-600 font-bold uppercase tracking-tighter ml-14">Se marcado, participantes deste tipo poderão enviar arquivos PDF/DOCX.</p>
+                        <x-input-error :messages="$errors->get('allow_work_submission')" class="mt-2 text-[10px] font-bold text-red-500 uppercase" />
+                    </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('events.edit', $inscriptionType->event_id) }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                                {{ __('Cancelar') }}
-                            </a>
-                            
-                            <x-primary-button class="ms-4">
-                                {{ __('Atualizar Tipo de Inscrição') }}
-                            </x-primary-button>
-                        </div>
-                    </form>
-
-                </div>
+                    <div class="flex justify-end items-center gap-6 mt-8 pt-6 border-t border-white/5">
+                        <a href="{{ route('events.edit', $inscriptionType->event_id) }}" class="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors">
+                            {{ __('Cancelar') }}
+                        </a>
+                        <button type="submit" class="px-8 py-4 bg-gradient-to-r from-[#4f46e5] to-[#9333ea] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-[1.02] transition-all">
+                            {{ __('Atualizar Tipo de Inscrição') }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

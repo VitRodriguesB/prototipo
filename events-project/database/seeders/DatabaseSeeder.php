@@ -12,17 +12,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 👇 ADICIONE ESTA LINHA 👇
-        $this->call(UserTypeSeeder::class);
-        $this->call(PaymentTypeSeeder::class);
+        $this->call([
+            UserTypeSeeder::class,
+            PaymentTypeSeeder::class,
+            WorkTypeSeeder::class,
+            EventSeeder::class,
+        ]);
 
-        // Opcional: Vamos criar um usuário 'Organizador' para testes
+        // Usuário Participante padrão para testes
         User::factory()->create([
-            'name' => 'Organizador Teste',
-            'email' => 'org@fatec.com',
-            'password' => bcrypt('123456'), // Lembre-se da senha!
-            'user_type_id' => 1, // ID 1 = Organizador
-            'email_verified_at' => now(), // Já vem verificado
+            'name' => 'Matheus Participante',
+            'email' => 'participante@patio.com',
+            'user_type_id' => 1,
+            'email_verified_at' => now(),
         ]);
     }
 }

@@ -74,15 +74,9 @@
                 const absDiff = Math.abs(diff);
                 const isMobile = window.innerWidth < 768;
                 
-                // Cálculo de Deslocamento Lateral Percentual (Centralização Garantida)
-                // Usamos 60% da largura do card para o gap no Desktop e 45% no Mobile
                 let xOffset = diff * (isMobile ? 45 : 60); 
-                
-                // Profundidade e Rotação 3D
                 let zOffset = absDiff * (isMobile ? -150 : -350);
                 let rotateY = diff * (isMobile ? -25 : -35);
-                
-                // Estética e Visibilidade
                 let scale = 1 - (absDiff * (isMobile ? 0.15 : 0.1));
                 let opacity = 1 - (absDiff * 0.35);
                 let zIndex = 100 - absDiff;
@@ -190,10 +184,38 @@
             <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black to-transparent z-0"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="mb-16 flex items-center gap-10">
-                    <h2 class="text-4xl font-black uppercase tracking-tighter italic text-white leading-tight">Grade <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#9333ea]">Completa</span></h2>
-                    <div class="h-[1px] flex-1 bg-gradient-to-r from-indigo-500/30 to-transparent"></div>
+                
+                <div class="mb-16 flex flex-col md:flex-row items-end justify-between gap-6 relative z-30">
+                    <div class="flex-shrink-0">
+                        <h2 class="text-4xl font-black uppercase tracking-tighter italic text-white leading-tight">Grade <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4f46e5] to-[#9333ea]">Completa</span></h2>
+                    </div>
+
+                    <div class="hidden md:block h-[1px] flex-1 bg-gradient-to-r from-indigo-500/30 to-transparent mx-4 self-center mt-6"></div>
+
+                    <div class="w-full md:w-[350px] relative z-40">
+                        <form action="{{ route('home') }}" method="GET" class="relative group">
+                            <input 
+                                type="text" 
+                                name="search" 
+                                value="{{ request('search') }}"
+                                placeholder="Buscar evento..." 
+                                class="w-full bg-[#16161a]/90 backdrop-blur-xl border border-white/10 rounded-xl py-3 pl-4 pr-24 text-sm text-white focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-all shadow-xl"
+                            >
+                            <button type="submit" class="absolute right-1.5 top-1.5 bottom-1.5 bg-[#4f46e5] hover:bg-[#6366f1] text-white px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_20px_rgba(79,70,229,0.8)]">
+                                Buscar
+                            </button>
+                        </form>
+                        
+                        @if(request('search'))
+                            <div class="absolute right-0 -bottom-6">
+                                <a href="{{ route('home') }}" class="text-[9px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors">
+                                    Limpar Filtro ×
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse ($events as $event)
                         <a href="{{ route('events.public.show', $event) }}" 

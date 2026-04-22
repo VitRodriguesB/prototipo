@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\WorkType; // Importe o Model
+use App\Models\WorkType; 
 
 class WorkTypeSeeder extends Seeder
 {
@@ -16,8 +16,5 @@ class WorkTypeSeeder extends Seeder
         WorkType::create(['type' => 'Resumo Simples']);
         WorkType::create(['type' => 'Resumo Expandido']);
         WorkType::create(['type' => 'Artigo Completo']);
-        $this->call(UserTypeSeeder::class);
-        $this->call(PaymentTypeSeeder::class);
-        $this->call(WorkTypeSeeder::class); // 👈 ADICIONE ESTA LINHA
     }
 }
